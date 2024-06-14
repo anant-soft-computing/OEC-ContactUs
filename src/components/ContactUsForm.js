@@ -14,7 +14,6 @@ import {
   Autocomplete,
   FormControl,
 } from "@mui/material";
-import countryList from "react-select-country-list";
 import logo from "../assets/OEC.png";
 
 const steps = [
@@ -24,29 +23,20 @@ const steps = [
   "Preview",
 ];
 
-const getYears = () => {
-  const currentYear = new Date().getFullYear();
-  return [currentYear, currentYear + 1, currentYear + 2];
-};
-
 const ContactUsForm = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    countryInterested: "",
-    intakeYear: "",
-    levelApplying: "",
+    firstname: "",
+    lastname: "",
+    country_interested: "",
+    intake_year: "",
+    level_applying: "",
     email: "",
     phone: "",
     notes: "",
     resume: null,
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
-
-  const options = countryList()
-    .getData()
-    .map((country) => country.label);
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -68,13 +58,6 @@ const ContactUsForm = () => {
     });
   };
 
-  const handleCountryChange = (event, value) => {
-    setFormData({
-      ...formData,
-      countryInterested: value,
-    });
-  };
-
   const handleFileChange = (e) => {
     setFormData({
       ...formData,
@@ -82,9 +65,53 @@ const ContactUsForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleReset = () => {
+    setFormData({
+      firstname: "",
+      lastname: "",
+      country_interested: "",
+      intake_year: "",
+      level_applying: "",
+      email: "",
+      phone: "",
+      notes: "",
+      resume: null,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormSubmitted(true);
+
+    const data = new FormData();
+
+    data.append("firstname", formData.firstname);
+    data.append("lastname", formData.lastname);
+    data.append("country_interested", formData.country_interested);
+    data.append("intake_year", formData.intake_year);
+    data.append("level_applying", formData.level_applying);
+    data.append("email", formData.email);
+    data.append("phone", formData.phone);
+    data.append("notes", formData.notes);
+    data.append("resume", formData.resume);
+
+    try {
+      const response = await fetch(
+        "https://smhri.com/oeccrm/api/create/contactus/",
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+      if (response.ok) {
+        handleReset();
+        setFormSubmitted(true);
+      } else {
+        setFormSubmitted(false);
+      }
+    } catch (error) {
+      setFormSubmitted(false);
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -165,16 +192,16 @@ const ContactUsForm = () => {
                   <Box>
                     <TextField
                       label="First Name"
-                      name="firstName"
-                      value={formData.firstName}
+                      name="firstname"
+                      value={formData.firstname}
                       onChange={handleChange}
                       fullWidth
                       margin="normal"
                     />
                     <TextField
                       label="Last Name"
-                      name="lastName"
-                      value={formData.lastName}
+                      name="lastname"
+                      value={formData.lastname}
                       onChange={handleChange}
                       fullWidth
                       margin="normal"
@@ -183,41 +210,56 @@ const ContactUsForm = () => {
                 )}
                 {activeStep === 1 && (
                   <Box marginTop={3}>
-                    <Autocomplete
-                      options={options}
-                      value={formData.countryInterested}
-                      onChange={handleCountryChange}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Country Interested"
-                          variant="outlined"
-                          fullWidth
-                        />
-                      )}
-                    />
                     <FormControl fullWidth margin="normal">
                       <Autocomplete
-                        options={getYears()}
-                        value={formData.intakeYear}
-                        onChange={(event, newValue) =>
-                          handleChange({
-                            target: { name: "intakeYear", value: newValue },
-                          })
-                        }
-                        renderInput={(params) => (
-                          <TextField {...params} label="Intake Year" />
-                        )}
-                      />
-                    </FormControl>
-                    <FormControl fullWidth margin="normal">
-                      <Autocomplete
-                        options={["Under Graduate", "Post Graduate"]}
-                        value={formData.levelApplying}
+                        options={[
+                          "Uk",
+                          "Australia",
+                          "Canada",
+                          "USA",
+                          "New Zealand",
+                          "Ireland",
+                          "Germany",
+                          "France",
+                          "Switzerland",
+                          "Spain",
+                          "Georgia",
+                          "Czech",
+                          "Hungary",
+                          "Dubai",
+                          "Malaysia",
+                        ]}
+                        value={formData.country_interested}
                         onChange={(event, newValue) =>
                           handleChange({
                             target: {
-                              name: "levelApplying",
+                              name: "country_interested",
+                              value: newValue,
+                            },
+                          })
+                        }
+                        renderInput={(params) => (
+                          <TextField {...params} label="Country Interested" />
+                        )}
+                      />
+                    </FormControl>
+                    <TextField
+                      label="Intake Year"
+                      type="number"
+                      name="intake_year"
+                      value={formData.intake_year}
+                      onChange={handleChange}
+                      fullWidth
+                      margin="normal"
+                    />
+                    <FormControl fullWidth margin="normal">
+                      <Autocomplete
+                        options={["Under Graduate", "Post Graduate"]}
+                        value={formData.level_applying}
+                        onChange={(event, newValue) =>
+                          handleChange({
+                            target: {
+                              name: "level_applying",
                               value: newValue,
                             },
                           })
@@ -280,19 +322,19 @@ const ContactUsForm = () => {
                   <Box>
                     <Card sx={{ m: 2, p: 2 }}>
                       <Typography variant="body1">
-                        First Name : {formData.firstName}
+                        First Name : {formData.firstname}
                       </Typography>
                       <Typography variant="body1">
-                        Last Name : {formData.lastName}
+                        Last Name : {formData.lastname}
                       </Typography>
                       <Typography variant="body1">
-                        Country Interested : {formData.countryInterested}
+                        Country Interested : {formData.country_interested}
                       </Typography>
                       <Typography variant="body1">
-                        Intake Year : {formData.intakeYear}
+                        Intake Year : {formData.intake_year}
                       </Typography>
                       <Typography variant="body1">
-                        Level Applying for : {formData.levelApplying}
+                        Level Applying for : {formData.level_applying}
                       </Typography>
                       <Typography variant="body1">
                         Email : {formData.email}
@@ -305,7 +347,7 @@ const ContactUsForm = () => {
                       </Typography>
                       {formData.resume && (
                         <Typography variant="body1">
-                          <strong>Resume:</strong> {formData.resume.name}
+                          Resume : {formData.resume.name}
                         </Typography>
                       )}
                     </Card>
