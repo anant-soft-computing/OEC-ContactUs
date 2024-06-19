@@ -34,7 +34,7 @@ const ContactUsForm = () => {
     email: "",
     phone: "",
     notes: "",
-    resume: null,
+    resume: "",
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
 
