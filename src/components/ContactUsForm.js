@@ -68,26 +68,6 @@ const validationSchemas = [
       .matches(/^[0-9+-]{8,15}$/, "Enter a valid phone number")
       .required("Phone number is required"),
     notes: yup.string().optional(),
-    resume: yup
-      .mixed()
-      .optional()
-      .test(
-        "fileSize",
-        "File too large (max 5MB)",
-        (value) => !value || (value && value.size <= 5 * 1024 * 1024) // 5MB
-      )
-      .test(
-        "fileType",
-        "Unsupported file format (PDF, DOC, DOCX only)",
-        (value) =>
-          !value ||
-          (value &&
-            [
-              "application/pdf",
-              "application/msword",
-              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            ].includes(value.type))
-      ),
   }),
   // Step 3: Preview (no validation needed here, fields are already validated)
   yup.object().shape({}),
